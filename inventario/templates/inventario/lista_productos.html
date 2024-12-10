@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilos adicionales */
+        body {
+            background-color: #f1f1f1; /* Fondo claro para el body */
+            color: #333; /* Texto oscuro */
+            background-image: url("{% static 'images/fondo.jpg' %}"); /* Imagen de fondo */
+            background-size: cover; /* Para que la imagen cubra todo el fondo */
+            background-position: center; /* Centra la imagen */
+            background-attachment: fixed; /* Mantiene la imagen fija al hacer scroll */
+        }
+
+        .content-container {
+            background-color: #d3d3d3; /* Gris claro para el contenedor principal */
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #ddd; /* Bordes de la tabla */
+        }
+
+        .table th, .table td {
+            vertical-align: middle; /* Alineación vertical centrada */
+        }
+
+        .btn {
+            border-radius: 5px;
+        }
+
+        .btn-dark {
+            background-color: #343a40; /* Gris oscuro */
+            border-color: #343a40;
+        }
+
+        .btn-dark:hover {
+            background-color: #23272b; /* Más oscuro al pasar el mouse */
+            border-color: #1d2124;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #c82333;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #e0a800;
+        }
+
+        .table img {
+            width: 100px;
+            height: auto;
+        }
+
+        .table-light {
+            background-color: #f8f9fa !important;
+        }
+
+        /* Header */
+        .header {
+            background-color: #343a40; /* Gris oscuro */
+            color: #fff; /* Texto blanco */
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 15px 15px 0 0; /* Bordes redondeados solo arriba */
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .logout-btn {
+            margin-top: 10px;
+            padding: 5px 15px;
+            font-size: 14px;
+            background-color: #dc3545; /* Rojo */
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333; /* Rojo más oscuro */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container mt-5 content-container">
+        <!-- Header con nombre de usuario -->
+        <div class="header">
+            <h2>Bienvenido, {{ user.username }}</h2>
+            <form method="post" action="{% url 'cerrar_sesion' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Cerrar sesión</button>
+            </form>
+        </div>
+
+        <!-- Título y botón para agregar producto -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            {% if user.is_superuser %}
+            <a href="{% url 'crear_usuario' %}" class="btn btn-dark">Crear Usuario</a>
+            {% endif %}
+            <a href="{% url 'agregar_producto' %}" class="btn btn-primary">Agregar Producto</a>
+        </div>
+
+        <!-- Tabla de productos -->
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>
+                        {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                        {% else %}
+                        No hay imagen
+                        {% endif %}
+                    </td>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.descripcion }}</td>
+                    <td>{{ producto.precio }}</td>
+                    <td>{{ producto.cantidad }}</td>
+                    <td>
+                        <a href="{% url 'eliminar_producto' pk=producto.pk %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este producto?')">Eliminar</a>
+                        <a href="{% url 'editar_producto' pk=producto.pk %}" class="btn btn-warning">Editar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para ocultar el mensaje después de 3 segundos -->
+    <script>
+        setTimeout(function() {
+            var message = document.getElementById('success-message');
+            if (message) {
+                message.style.display = 'none';
+            }
+        }, 3000); // 3000 milisegundos = 3 segundos
+    </script>
+</body>
+</html>
